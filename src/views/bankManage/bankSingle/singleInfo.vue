@@ -122,7 +122,7 @@
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload"
             class="avatar-uploader"
-            action="/api/admin/uploadPicture">
+            action="/oes/api/teacher/uploadPicture">
             <img v-if="temp.pictureSrc" :src="temp.pictureSrc" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon"/>
           </el-upload>
@@ -188,235 +188,235 @@
 </template>
 
 <script>
-import { reqGetSingleList, reqSearchSingleList, reqDeleteSingle, reqInsertSingleInfo, reqUpdateSingleInfo } from '@/api/bankManage'
-import waves from '@/directive/waves' // Waves directive
-import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
-import BackToTop from '@/components/BackToTop'
+  import { reqGetSingleList, reqSearchSingleList, reqDeleteSingle, reqInsertSingleInfo, reqUpdateSingleInfo } from '@/api/bankManage'
+  import waves from '@/directive/waves' // Waves directive
+  import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
+  import BackToTop from '@/components/BackToTop'
 
-export default {
-  name: 'SingleInfo',
-  components: { Pagination, BackToTop },
-  directives: { waves },
-  data() {
-    return {
-      tableKey: 0,
-      list: null,
-      total: 0,
-      listLoading: true,
-      listQuery: {
-        page: 1,
-        limit: 10,
-        content: undefined,
-        langId: undefined,
-        composeFlag: undefined
-      },
-      composeFlagOptions: [{ label: '是', key: '1' }, { label: '否', key: '0' }],
-      langOptions: [],
-      temp: {
-        content: '',
-        pictureSrc: '',
-        choiceA: '',
-        choiceB: '',
-        choiceC: '',
-        choiceD: '',
-        choiceE: '',
-        choiceF: '',
-        choiceG: '',
-        singleAnswer: '',
-        answerExplain: '',
-        langId: undefined
-      },
-      dialogFormVisible: false,
-      dialogStatus: '',
-      rules: {
-        content: [{ required: true, message: '题目内容为必填项', trigger: 'change' }],
-        choiceA: [{ required: true, message: '选项A为必填项', trigger: 'change' }],
-        choiceB: [{ required: true, message: '选项B为必填项', trigger: 'change' }],
-        choiceC: [{ required: true, message: '选项C为必填项', trigger: 'change' }],
-        choiceD: [{ required: true, message: '选项D为必填项', trigger: 'change' }],
-        singleAnswer: [{ required: true, message: '题目答案为必填项', trigger: 'change' }],
-        langId: [{ required: true, message: '所属科目为必填项', trigger: 'change' }]
-      },
-      downloadLoading: false,
-      myBackToTopStyle: {
-        right: '50px',
-        bottom: '50px',
-        width: '40px',
-        height: '40px',
-        'border-radius': '4px',
-        'line-height': '45px', // 请保持与高度一致以垂直居中 Please keep consistent with height to center vertically
-        background: '#e7eaf1'// 按钮的背景颜色 The background color of the button
-      }
-    }
-  },
-  created() {
-    this.getList()
-  },
-  methods: {
-    async getList() {
-      this.listLoading = true
-      const result = await reqGetSingleList()
-      if (result.statu === 0) {
-        this.langOptions = result.data.langOptions
-        this.total = result.data.singleList.length
-        this.list = result.data.singleList.filter((item, index) => index < this.listQuery.limit * this.listQuery.page && index >= this.listQuery.limit * (this.listQuery.page - 1))
-      }
-      this.listLoading = false
-    },
-    handleUpdate(row) {
-      this.temp = Object.assign({}, row) // 复制对象
-      this.dialogStatus = '编辑题目'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    updateData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          this.handleUpdateSingle()
+  export default {
+    name: 'SingleInfo',
+    components: { Pagination, BackToTop },
+    directives: { waves },
+    data() {
+      return {
+        tableKey: 0,
+        list: null,
+        total: 0,
+        listLoading: true,
+        listQuery: {
+          page: 1,
+          limit: 10,
+          content: undefined,
+          langId: undefined,
+          composeFlag: undefined
+        },
+        composeFlagOptions: [{ label: '是', key: '1' }, { label: '否', key: '0' }],
+        langOptions: [],
+        temp: {
+          content: '',
+          pictureSrc: '',
+          choiceA: '',
+          choiceB: '',
+          choiceC: '',
+          choiceD: '',
+          choiceE: '',
+          choiceF: '',
+          choiceG: '',
+          singleAnswer: '',
+          answerExplain: '',
+          langId: undefined
+        },
+        dialogFormVisible: false,
+        dialogStatus: '',
+        rules: {
+          content: [{ required: true, message: '题目内容为必填项', trigger: 'change' }],
+          choiceA: [{ required: true, message: '选项A为必填项', trigger: 'change' }],
+          choiceB: [{ required: true, message: '选项B为必填项', trigger: 'change' }],
+          choiceC: [{ required: true, message: '选项C为必填项', trigger: 'change' }],
+          choiceD: [{ required: true, message: '选项D为必填项', trigger: 'change' }],
+          singleAnswer: [{ required: true, message: '题目答案为必填项', trigger: 'change' }],
+          langId: [{ required: true, message: '所属科目为必填项', trigger: 'change' }]
+        },
+        downloadLoading: false,
+        myBackToTopStyle: {
+          right: '50px',
+          bottom: '50px',
+          width: '40px',
+          height: '40px',
+          'border-radius': '4px',
+          'line-height': '45px', // 请保持与高度一致以垂直居中 Please keep consistent with height to center vertically
+          background: '#e7eaf1'// 按钮的背景颜色 The background color of the button
         }
-      })
-    },
-    async handleUpdateSingle() {
-      const result = await reqUpdateSingleInfo(this.temp)
-      if (result.statu === 0) {
-        this.dialogFormVisible = false
-        this.$message({
-          message: result.msg,
-          type: 'success'
-        })
-        this.getList()
-      } else {
-        this.$message({
-          message: result.msg,
-          type: 'error'
-        })
       }
     },
-    async handleFilter() {
-      this.listQuery.page = 1
-      this.listLoading = true
-      let langId = this.listQuery.langId
-      if (this.listQuery.langId === null || this.listQuery.langId === undefined) {
-        langId = 0
-      }
-      let composeFlag = this.listQuery.composeFlag
-      if (this.listQuery.composeFlag === null || this.listQuery.composeFlag === undefined) {
-        composeFlag = undefined
-      }
-      const result = await reqSearchSingleList(this.listQuery.content, langId, composeFlag)
-      if (result.statu === 0) {
-        this.total = result.data.length
-        this.list = result.data.filter((item, index) => index < this.listQuery.limit * this.listQuery.page && index >= this.listQuery.limit * (this.listQuery.page - 1))
-      }
-      this.listLoading = false
+    created() {
+      this.getList()
     },
-    resetTemp() {
-      this.temp = {
-        content: '',
-        pictureSrc: '',
-        choiceA: '',
-        choiceB: '',
-        choiceC: '',
-        choiceD: '',
-        choiceE: '',
-        choiceF: '',
-        choiceG: '',
-        singleAnswer: '',
-        answerExplain: '',
-        langId: undefined
-      }
-    },
-    handleCreate() {
-      this.resetTemp()
-      this.dialogStatus = '添加题目'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    createData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          this.insertSingleInfo()
+    methods: {
+      async getList() {
+        this.listLoading = true
+        const result = await reqGetSingleList()
+        if (result.statu === 0) {
+          this.langOptions = result.data.langOptions
+          this.total = result.data.singleList.length
+          this.list = result.data.singleList.filter((item, index) => index < this.listQuery.limit * this.listQuery.page && index >= this.listQuery.limit * (this.listQuery.page - 1))
         }
-      })
-    },
-    async insertSingleInfo() {
-      const result = await reqInsertSingleInfo(this.temp)
-      if (result.statu === 0) {
-        this.dialogFormVisible = false
-        this.$notify({
-          title: '成功',
-          message: '添加成功',
-          type: 'success',
-          duration: 2000
+        this.listLoading = false
+      },
+      handleUpdate(row) {
+        this.temp = Object.assign({}, row) // 复制对象
+        this.dialogStatus = '编辑题目'
+        this.dialogFormVisible = true
+        this.$nextTick(() => {
+          this.$refs['dataForm'].clearValidate()
         })
-        this.getList()
-      } else {
-        this.$notify({
-          title: '失败',
-          message: result.msg,
-          type: 'error',
-          duration: 2000
+      },
+      updateData() {
+        this.$refs['dataForm'].validate((valid) => {
+          if (valid) {
+            this.handleUpdateSingle()
+          }
         })
-      }
-    },
-    confirmDeleteQue(row) {
-      this.$confirm('确定删除该题目吗?若题目已被组成试卷则无法删除', '提示', {
-        confirmButtonText: '确定删除',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        if (row.composeFlag === '1') {
+      },
+      async handleUpdateSingle() {
+        const result = await reqUpdateSingleInfo(this.temp)
+        if (result.statu === 0) {
+          this.dialogFormVisible = false
           this.$message({
-            message: '该题目已被组成试卷，无法删除',
+            message: result.msg,
+            type: 'success'
+          })
+          this.getList()
+        } else {
+          this.$message({
+            message: result.msg,
             type: 'error'
           })
-        } else {
-          this.handleDeleteQue(row)
         }
-      }).catch(() => {
-      })
-    },
-    async handleDeleteQue(row) {
-      const singleId = row.singleId
-      const result = await reqDeleteSingle(singleId)
-      if (result.statu === 0) {
-        this.$message({
-          message: result.msg,
-          type: 'success'
+      },
+      async handleFilter() {
+        this.listQuery.page = 1
+        this.listLoading = true
+        let langId = this.listQuery.langId
+        if (this.listQuery.langId === null || this.listQuery.langId === undefined) {
+          langId = 0
+        }
+        let composeFlag = this.listQuery.composeFlag
+        if (this.listQuery.composeFlag === null || this.listQuery.composeFlag === undefined) {
+          composeFlag = undefined
+        }
+        const result = await reqSearchSingleList(this.listQuery.content, langId, composeFlag)
+        if (result.statu === 0) {
+          this.total = result.data.length
+          this.list = result.data.filter((item, index) => index < this.listQuery.limit * this.listQuery.page && index >= this.listQuery.limit * (this.listQuery.page - 1))
+        }
+        this.listLoading = false
+      },
+      resetTemp() {
+        this.temp = {
+          content: '',
+          pictureSrc: '',
+          choiceA: '',
+          choiceB: '',
+          choiceC: '',
+          choiceD: '',
+          choiceE: '',
+          choiceF: '',
+          choiceG: '',
+          singleAnswer: '',
+          answerExplain: '',
+          langId: undefined
+        }
+      },
+      handleCreate() {
+        this.resetTemp()
+        this.dialogStatus = '添加题目'
+        this.dialogFormVisible = true
+        this.$nextTick(() => {
+          this.$refs['dataForm'].clearValidate()
         })
-        this.getList()
-      } else {
-        this.$message({
-          message: result.msg,
-          type: 'error'
+      },
+      createData() {
+        this.$refs['dataForm'].validate((valid) => {
+          if (valid) {
+            this.insertSingleInfo()
+          }
         })
-      }
-    },
-    handleAvatarSuccess(res, file) {
-      // this.temp.pictureSrc = URL.createObjectURL(file.raw)
-      this.temp.pictureSrc = res.data
-    },
-    beforeAvatarUpload(file) {
-      const isType = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/gif'
-      const isLt4M = file.size / 1024 / 1024 < 4
+      },
+      async insertSingleInfo() {
+        const result = await reqInsertSingleInfo(this.temp)
+        if (result.statu === 0) {
+          this.dialogFormVisible = false
+          this.$notify({
+            title: '成功',
+            message: '添加成功',
+            type: 'success',
+            duration: 2000
+          })
+          this.getList()
+        } else {
+          this.$notify({
+            title: '失败',
+            message: result.msg,
+            type: 'error',
+            duration: 2000
+          })
+        }
+      },
+      confirmDeleteQue(row) {
+        this.$confirm('确定删除该题目吗?若题目已被组成试卷则无法删除', '提示', {
+          confirmButtonText: '确定删除',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          if (row.composeFlag === '1') {
+            this.$message({
+              message: '该题目已被组成试卷，无法删除',
+              type: 'error'
+            })
+          } else {
+            this.handleDeleteQue(row)
+          }
+        }).catch(() => {
+        })
+      },
+      async handleDeleteQue(row) {
+        const singleId = row.singleId
+        const result = await reqDeleteSingle(singleId)
+        if (result.statu === 0) {
+          this.$message({
+            message: result.msg,
+            type: 'success'
+          })
+          this.getList()
+        } else {
+          this.$message({
+            message: result.msg,
+            type: 'error'
+          })
+        }
+      },
+      handleAvatarSuccess(res, file) {
+        // this.temp.pictureSrc = URL.createObjectURL(file.raw)
+        this.temp.pictureSrc = res.data
+      },
+      beforeAvatarUpload(file) {
+        const isType = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/gif'
+        const isLt4M = file.size / 1024 / 1024 < 4
 
-      if (!isType) {
-        this.$message.error('上传头像图片只能是 JPG/PNG/GIF 格式!')
+        if (!isType) {
+          this.$message.error('上传头像图片只能是 JPG/PNG/GIF 格式!')
+        }
+        if (!isLt4M) {
+          this.$message.error('上传头像图片大小不能超过 4MB!')
+        }
+        return isType && isLt4M
+      },
+      deletePictureSrc() {
+        this.temp.pictureSrc = ''
       }
-      if (!isLt4M) {
-        this.$message.error('上传头像图片大小不能超过 4MB!')
-      }
-      return isType && isLt4M
-    },
-    deletePictureSrc() {
-      this.temp.pictureSrc = ''
     }
   }
-}
 </script>
 <style rel="stylesheet/scss" lang="scss" type="text/scss" scoped>
   .demo-table-expand {
